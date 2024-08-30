@@ -83,6 +83,7 @@ const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
     const newIndex = Math.floor(
       container.scrollTop / (container.clientHeight - 200)
     ); // Adjust for padding
+    console.log(newIndex+""+questions.length)
     setCurrentIndex(newIndex);
 
     const threeBeforeEnd = questions.length - 3;
@@ -182,7 +183,6 @@ const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
         <div ref={containerRef} style={containerStyle} onScroll={handleScroll}>
           {questions.map((item, index) => (
             <div key={index} ref={(el) => (cardsRef.current[index] = el)}>
-              {index > 0 && index % 3 === 0 && <AdCard />} {/* Insert ad every 3 cards */}
               <div style={cardContainerStyle}>
                 {!isLoading && (
                   <QuestionCard
