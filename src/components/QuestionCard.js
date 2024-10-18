@@ -17,6 +17,7 @@ const QuestionCard = ({
   color,
   fullJSON,
   isFavorites,
+  mobileDimension
 }) => {
   const cardStyle = {
     cardColor: "whitesmoke",
@@ -136,23 +137,22 @@ const QuestionCard = ({
   const isFavorite = favorites.some(
     (fav) => fav.question === fullJSON.question
   );
-
+ 
   return (
     <div>
       <div
+      className="card"
         style={{
-          height: "80vh",
-          width: "370px",
-          background: `${color}08`,
-          margin: "50px 0px",
+          background: `${color}08`, 
           borderRadius: "10px",
-          boxShadow: "0px 0px 4px 1px gainsboro",
+          boxShadow:`0px 0px 20px 1px ${color}20`,
           padding: "10px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
           position: "relative",
           animation: shake ? "shake 0.5s ease-out" : "none",
+          border:`1px solid ${color}80`
         }}
       >
         <div>
@@ -161,6 +161,12 @@ const QuestionCard = ({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              backgroundColor: `${color}20`,
+              margin:"-10px",
+              padding:"10px",
+              borderTopLeftRadius:"10px",
+              borderTopRightRadius:"10px"
+
             }}
           >
             <p
@@ -181,6 +187,7 @@ const QuestionCard = ({
               style={{
                 fontSize: "24px",
                 cursor: "pointer",
+               
               }}
               className="fa-solid fa-heart"
               id={isFavorite ? "heart-clicked" : "heart-unclicked"}
@@ -190,7 +197,7 @@ const QuestionCard = ({
             style={{
               fontSize:
                 question.length < 150
-                  ? "30px"
+                  ? "24px"
                   : question.length < 400
                   ? "18px"
                   : "14px",
@@ -250,7 +257,7 @@ const QuestionCard = ({
                 color: cardStyle.textColor,
               }}
               disabled={isFavorites}
-              onClick={() => handleChoiceClick(choice)}
+              onClick={() => {handleChoiceClick(choice)}}
             >
               <Latex>{choice}</Latex>
             </button>

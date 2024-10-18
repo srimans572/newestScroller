@@ -73,6 +73,7 @@ const CustomDropdown = ({onSelect, sets, setCurrentSet, currentSet}) => {
                   cursor: 'pointer',
                   fontSize: '16px',
                   backgroundColor: 'transparent',
+                  display:"flex"
                 }}
                 onClick={() => handleOptionClick(option)}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f1f1'}

@@ -1,4 +1,5 @@
 import Bottom from "../components/Bottom";
+import CustomDropdown from "../components/Dropdown";
 import Navbar from "../components/Navbar";
 import Scroller from "../components/Scroller";
 import { useState, useEffect, useRef } from "react";
@@ -6,10 +7,9 @@ import { doc } from "firebase/firestore";
 import { onSnapshot } from "firebase/firestore";
 import { db } from "../components/firebase/Firebase";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import Desmos from "desmos";
+import VideoScroller from "../components/VideoScroller";
 
-function Home() {
+function Scrolls() {
   const [streak, setStreak] = useState(
     localStorage.getItem("streak")
       ? parseInt(localStorage.getItem("streak"))
@@ -47,7 +47,7 @@ function Home() {
             // Get the sets and filter only scrollGenerationMode 1 sets
             const filteredSets = doc
               .data()
-              .sets.filter((set) => set.scrollGenerationMode != 2);
+              .sets.filter((set) => set.scrollGenerationMode == 2);
             setSets(filteredSets);
             console.log(filteredSets);
           }
@@ -68,8 +68,7 @@ function Home() {
         <div
           style={{
             flex: 1,
-           
-            padding: "0px",
+            padding: "10px",
             overflowY: "auto",
             display: "flex",
             justifyContent: "center",
@@ -152,6 +151,7 @@ function Home() {
               )}
             </div>
           )}
+
           {currentSet ? (
             <div
               style={{
@@ -162,7 +162,7 @@ function Home() {
                 display: "flex",
               }}
             >
-              <Scroller
+              <VideoScroller
                 setStreak={setStreak}
                 setXP={setXP}
                 currentSet={currentSet}
@@ -255,4 +255,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Scrolls;

@@ -11,7 +11,7 @@ const Plans = ({ planType }) => {
   const checkoutOptions = {
     lineItems: [item],
     mode: "payment",
-    successUrl: `${window.location.origin}/`,
+    successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: `${window.location.origin}/`,
   };
   let stripePromise;
@@ -83,11 +83,11 @@ const Plans = ({ planType }) => {
           <li>✅ Unlimited Scrolling</li>
           <li>
             ✅ Unlimted Subjects
-            <span style={{ fontSize: "10px" }}> (Till September 5th)</span>
+            <span style={{ fontSize: "10px" }}> (Till September 30th)</span>
           </li>
-          <li>❌ Save Scrolls</li>
+          <li>✅  Save Scrolls</li>
+          <li>❌  Upload PDFs/ Images</li>
           <li>❌ No Ads</li>
-          <li>❌ Early Acccess to New Features</li>
           <li>❌ No Priority Customer Support</li>
           <li>❌ No Access to Scroller Benefits</li>
         </div>
@@ -147,7 +147,7 @@ const Plans = ({ planType }) => {
           <li>✅ Unlimited Scrolling</li>
           <li>✅ Unlimited Subjects</li>
           <li>✅ Save Scrolls</li>
-          <li>✅ Access to Answer Explanations </li>
+          <li>✅ Upload PDFs/ Images</li>
           <li>
             ✅ Access to Themes{" "}
             <span style={{ fontSize: "10px" }}>(Coming Soon)</span>

@@ -4,6 +4,7 @@ import { getDoc, onSnapshot, doc } from "firebase/firestore";
 import { db } from "./firebase/Firebase";
 import Plans from "./Plans";
 import { useNavigate } from "react-router-dom";
+import { Elements } from "@stripe/react-stripe-js";
 
 const MyProfile = ({ mobileDimension }) => {
   const [name, setName] = useState();
@@ -19,7 +20,7 @@ const MyProfile = ({ mobileDimension }) => {
           setName(doc.data().name);
           setEmail(doc.data().email);
           setPlanType(doc.data().plan);
-          setReferalCode(doc.data().myCode)
+          setReferalCode(doc.data().myCode);
         }
       );
     } catch (error) {
@@ -107,7 +108,7 @@ const MyProfile = ({ mobileDimension }) => {
               alignItems: "center",
             }}
           >
-            <label style={{}}>Referal Code: </label>
+            <label style={{}}>Referral Code: </label>
             <p
               style={{
                 fontWeight: "bold",
@@ -120,8 +121,6 @@ const MyProfile = ({ mobileDimension }) => {
           </div>
         </div>
       </div>
-      <h1 style={{ margin: "40px 50px" }}>Plans</h1>
-      <Plans planType={planType} />
     </div>
   );
 };

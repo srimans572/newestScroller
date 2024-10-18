@@ -1,55 +1,62 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import PrivacyPolicyPopup from "./Privacy";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
-  sendEmailVerification
+  sendEmailVerification,
+  signInWithPopup,
+  GoogleAuthProvider,
 } from "firebase/auth";
 import { auth } from "./firebase/Firebase";
 import { db } from "./firebase/Firebase";
-import { addDoc, setDoc, doc, getDoc } from "firebase/firestore";
+import { setDoc, doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 const AuthBox = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [verificationMessage, setVerificationMessage] = useState("");
-
   const [name, setName] = useState("");
-  const [referalCode, setReferalCode] = useState("");
   const [mode, setMode] = useState(0);
   const navigate = useNavigate();
   const [error, setError] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
   };
 
   const sendPasswordReset = async () => {
-  
     try {
       await sendPasswordResetEmail(auth, email);
       alert("Password reset email sent!");
     } catch (error) {
       console.error("Error sending password reset email:", error);
-      alert("Please Provide a Valid Email");
+      alert("Please provide a valid email.");
     }
   };
-  
+
   const register = async () => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       // Send email verification
       await sendEmailVerification(user);
 
       // Show verification message
-      setMode(1)
-      setVerificationMessage("A verification email has been sent to your email address. Please check your inbox.");
-      setError(false)
+      setMode(1);
+      setVerificationMessage(
+        "A verification email has been sent to your email address. Please check your inbox."
+      );
+      setError(false);
 
       console.log("User registered, verification email sent:", user);
       localStorage.setItem("email", email);
@@ -60,26 +67,61 @@ const AuthBox = () => {
     }
   };
 
+  const googleSignIn = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userDocRef = doc(db, "users", user.email);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        const myCode = Math.floor(Math.random() * 1000000000);
+        await setDoc(userDocRef, {
+          name: user.displayName || "",
+          email: user.email,
+          userType: "student",
+          plan: "free",
+          myCode: myCode,
+          sets: [],
+          cards: [],
+        });
+      }
+
+      console.log("User signed in with Google:", user);
+      localStorage.setItem("email", user.email);
+      navigate("/");
+    } catch (e) {
+      console.error("Error during Google sign-in:", e);
+
+      if (e.code !== "auth/popup-closed-by-user") {
+        setError(e.message);
+      }
+    }
+  };
+
   const login = async () => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
       if (!user.emailVerified) {
-        // Sign out the user if their email is not verified
-        await auth.signOut();
+        await signOut(auth);
         setError("Please verify your email before logging in.");
         return;
       }
 
-      // Check if the Firestore document exists
       const userDocRef = doc(db, "users", email);
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
-        // If the document doesn't exist, create it (first time signing in)
         const myCode = Math.floor(Math.random() * 1000000000);
         await setDoc(userDocRef, {
-          name: user.displayName || "", // Use the displayName if available
+          name: user.displayName || "",
           email: email,
           userType: "student",
           plan: "free",
@@ -111,8 +153,7 @@ const AuthBox = () => {
         height: "fit-content",
         borderRadius: "10px",
         boxShadow: "0px 1px 1px 1px gainsboro",
-        marginBottom:"100px",
-        
+        marginBottom: "100px",
       }}
     >
       {error && (
@@ -125,18 +166,18 @@ const AuthBox = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            marginBottom: "20px",
+            fontSize: "11px",
           }}
         >
           <p>
-            Oops!
-            {mode == 1
-              ? error
-              : "There was a problem with the account!"}
+            Oops! {mode === 1 ? error : "There was a problem with the account!"}
           </p>
         </div>
       )}
-      {verificationMessage && 
-      <div style={{
+      {verificationMessage && (
+        <div
+          style={{
             height: "50px",
             width: "300px",
             backgroundColor: "lightgreen",
@@ -144,13 +185,23 @@ const AuthBox = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            marginBottom: "50px",
           }}
         >
-          <p style={{fontSize:"13px", textAlign:'center', margin:'1px'}}>{verificationMessage}</p>
-      </div>}
+          <p
+            style={{
+              fontSize: "13px",
+              textAlign: "center",
+              margin: "1px",
+            }}
+          >
+            {verificationMessage}
+          </p>
+        </div>
+      )}
       <h2>Hi! 👋</h2>
       <form onSubmit={handleSubmit}>
-        {mode == 0 && (
+        {mode === 0 && (
           <div>
             <div
               style={{
@@ -174,29 +225,6 @@ const AuthBox = () => {
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                margin: "20px 0px",
-              }}
-            >
-              <label>Referal Code</label>
-              <input
-                style={{
-                  marginTop: "10px",
-                  padding: "10px",
-                  borderRadius: "10px",
-                  border: "none",
-                  outline: "1px solid gainsboro",
-                }}
-                type="text"
-                placeholder="Enter the 10 Digit Referal Code"
-                value={referalCode}
-                onChange={(e) => setReferalCode(e.target.value)}
-                maxLength="10"
-              />
-            </div>
           </div>
         )}
         <div
@@ -207,6 +235,11 @@ const AuthBox = () => {
           }}
         >
           <label>Your email address</label>
+          {mode == 0 && (
+            <p style={{ fontSize: "10px", color: "gray" }}>
+              A verification email will be sent to this email address
+            </p>
+          )}
           <input
             style={{
               marginTop: "10px",
@@ -228,14 +261,24 @@ const AuthBox = () => {
             margin: "20px 0px",
           }}
         >
-          <div style={{flexDirection:"row", display:'flex'}}>
-          <label>Password</label>
-          <div style={{width:'98%'}}></div>
-          {mode != 0 && (
-          <textbutton onClick={ sendPasswordReset }>
-            <p style={{fontSize:'12px', color: 'orange', textAlign:'center', justifyContent:'center', alignItems:'center', height:'100%'}}>Forgot?</p>
-          </textbutton>
-          )}
+          <div style={{ flexDirection: "row", display: "flex" }}>
+            <label>Password</label>
+            <div style={{ width: "98%" }}></div>
+            {mode !== 0 && (
+              <button
+                type="button"
+                style={{
+                  fontSize: "12px",
+                  color: "orange",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+                onClick={sendPasswordReset}
+              >
+                Forgot?
+              </button>
+            )}
           </div>
           <input
             style={{
@@ -251,7 +294,7 @@ const AuthBox = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        {mode == 1 ? (
+        {mode === 1 ? (
           <button
             style={{
               width: "100%",
@@ -261,9 +304,10 @@ const AuthBox = () => {
               color: "white",
               borderRadius: "100px",
               cursor: "pointer",
+              marginBottom: "30px",
             }}
             type="submit"
-            onClick={async () => login()}
+            onClick={login}
           >
             Login
           </button>
@@ -276,7 +320,14 @@ const AuthBox = () => {
                 marginBottom: "10px",
               }}
             >
-              By signing up, you agree to our privacy policy
+              By signing up, you agree to our{" "}
+              <span
+                onClick={async () => setPrivacyOpen(true)}
+                style={{ color: "blue" }}
+              >
+                privacy policy
+              </span>
+              .{privacyOpen && <PrivacyPolicyPopup open={privacyOpen} />}
             </p>
             <button
               style={{
@@ -289,30 +340,60 @@ const AuthBox = () => {
                 cursor: "pointer",
               }}
               type="submit"
-              onClick={async () => register()}
+              onClick={register}
             >
               Sign Up
             </button>
           </div>
         )}
 
+        <br />
+        {/* <p style={{ fontSize: "14px", margin: "10px 0px" }}>or</p> */}
+        <hr></hr>
         <br></br>
+        <button
+          style={{
+            width: "100%",
+            padding: "10px",
+            backgroundColor: "white",
+            outline: "1px solid black",
+            border:"none",
+            color: "black",
+            borderRadius: "200px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={googleSignIn}
+        >
+          <img
+            src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png"
+            style={{
+              width: "5%",
+              height: "5%",
+              scale: "2",
+              marginRight: "10px",
+            }}
+          ></img>
+          Continue With Google
+        </button>
 
-        {mode == 1 ? (
+        {mode === 1 ? (
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
+              flexDirection: "row",
               alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <p style={{ fontSize: "14px", margin: "30px 0px" }}>
-              New to Scroller?{" "}
+            <p style={{ fontSize: "14px", margin: "30px 10px" }}>
+              New to Scroller?
             </p>
-
             <p
-              style={{ fontSize: "14px", cursor: "pointer" }}
-              onClick={async () =>  setMode(0)}
+              style={{ fontSize: "14px", cursor: "pointer", color: "orange" }}
+              onClick={() => setMode(0)}
             >
               Sign Up
             </p>
@@ -321,19 +402,19 @@ const AuthBox = () => {
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
+              flexDirection: "row",
               alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <p style={{ fontSize: "14px", margin: "10px 0px" }}>
-              Have an account already?{" "}
+            <p style={{ fontSize: "14px", margin: "30px 10px" }}>
+              Already a member?
             </p>
-            <br></br>
             <p
-              style={{ fontSize: "14px", cursor: "pointer" }}
-              onClick={async () => setMode(1)}
+              style={{ fontSize: "14px", cursor: "pointer", color: "orange" }}
+              onClick={() => setMode(1)}
             >
-              Sign In
+              Log in
             </p>
           </div>
         )}

@@ -8,10 +8,10 @@ const containerStyle = {
   flexDirection: "column",
   height: "100vh",
   width: "100%",
-  overflowY: "scroll",
-  scrollSnapType: "y mandatory",
+  overflowY: "auto", // Change from 'scroll' to 'auto'
+  scrollSnapType: "y mandatory", // Enforce snapping on the y-axis
+  scrollBehavior: "smooth", // Smooth scrolling
   boxSizing: "border-box",
-  scrollBehavior: "smooth",
   padding: "0px",
   margin: "0px",
   alignItems: "center",
@@ -20,8 +20,9 @@ const containerStyle = {
 const cardContainerStyle = {
   display: "flex",
   flexDirection: "column",
-  height: "100vh", // Ensure each card takes up full viewport height
-  scrollSnapAlign: "start",
+  height: "100vh", // Each card takes up full viewport height
+  scrollSnapAlign: "start", // Snap to the start of each card
+  scrollSnapStop: "always", // Stop scrolling at each snap point
 };
 
 const loadingStyle = {
@@ -33,24 +34,24 @@ const loadingStyle = {
   color: "#888",
 };
 
-const AdCard = () => {
-  return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#f0f0f0",
-        scrollSnapAlign: "start",
-        outline:"1px solid gainsboro",
-        borderRadius:"10px"
-      }}
-    >
-      <p style={{ fontSize: "24px", color: "#888" }}>Advertisement</p>
-    </div>
-  );
-};
+// const AdCard = () => {
+//   return (
+//     <div
+//       style={{
+//         height: "100vh",
+//         display: "flex",
+//         justifyContent: "center",
+//         alignItems: "center",
+//         backgroundColor: "#f0f0f0",
+//         scrollSnapAlign: "start",
+//         outline:"1px solid gainsboro",
+//         borderRadius:"10px"
+//       }}
+//     >
+//       <p style={{ fontSize: "24px", color: "#888" }}>Advertisement</p>
+//     </div>
+//   );
+// };
 
 const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
   const containerRef = useRef(null);
@@ -63,7 +64,6 @@ const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
   const [isLoading, setIsLoading] = useState(false); // Flag for showing the loading indicator
   const [isFetching, setIsFetching] = useState(false); // Flag for indicating an API call
   const [currentIndex, setCurrentIndex] = useState(0); // Track the current card index
-
   useEffect(() => {
     if (
       questions.length < 1 &&
@@ -80,18 +80,14 @@ const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
     const container = containerRef.current;
     if (!container) return;
 
-    const newIndex = Math.floor(
-      container.scrollTop / (container.clientHeight - 200)
-    ); // Adjust for padding
-    console.log(newIndex+""+questions.length)
+    const newIndex = Math.floor(container.scrollTop / container.clientHeight); // Adjust for padding
     setCurrentIndex(newIndex);
-
     const threeBeforeEnd = questions.length - 3;
 
     // Start fetching when three cards away from the end
-    if (newIndex >= threeBeforeEnd && !isFetching) {
+    if (currentIndex >= threeBeforeEnd && !isFetching) {
       setIsFetching(true);
-      console.log("Fetching more questions...");
+
       fetchQuestions();
     }
   };
@@ -121,7 +117,6 @@ const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
       }
 
       const data = await response.json();
-      console.log("Data fetched:", data);
       const newQuestions = JSON.parse(data);
       const modifiedQuestions = newQuestions.map((question) => {
         return {
@@ -183,6 +178,7 @@ const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
         <div ref={containerRef} style={containerStyle} onScroll={handleScroll}>
           {questions.map((item, index) => (
             <div key={index} ref={(el) => (cardsRef.current[index] = el)}>
+              {/* {index > 0 && index % 3 === 0 && <AdCard />} Insert ad every 3 cards */}
               <div style={cardContainerStyle}>
                 {!isLoading && (
                   <QuestionCard
