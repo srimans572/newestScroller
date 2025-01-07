@@ -4,16 +4,22 @@ import CareerCard from "../components/CareerCard";
 
 const careers = [
   {
+    title: "Chief Marketing Officer",
+    timeCommitment: "10-20hrs/ week",
+    description:
+      "You will help lead the marketing team at Scroller. You willl help plan, design and execute social media campaigns and outreach efforts. ",
+  },
+  {
     title: "Frontend Engineer",
     timeCommitment: "10-20hrs/ week",
     description:
-      "You will help us build and maintain the frontend at Scroller. We are looking for interns with strong experience in React.",
+      "You will help us build and maintain the frontend at Scroller. We are looking for interns with strong experience in React and Figma.",
   },
   {
     title: "Backend Engineer",
     timeCommitment: "10-20hrs/ week",
     description:
-      "You will help us build, maintain and improve our backend at Scroller. We are looking for interns with strong skills in Node.js and Express and good knowledge about backend programming in general. ",
+      "You will help us build, maintain and improve our backend at Scroller. We are looking for interns with strong skills in Node.js and Express and good knowledge about backend programming in general. We prefer candidates with experience working with Large Language Models (GPT, Llama, etc.).",
   },
   {
     title: "Social Media Marketing Intern",
@@ -55,17 +61,17 @@ const CareersPage = () => {
   return (
     <div
       style={{
-        background: "black",
+        background: "white",
         height: "100vh",
-        color: "white",
+        color: "black",
         padding: "50px 10vw",
         overflow: "scroll",
       }}
     >
       <p style={{ fontSize: "18px", color: "orange" }}>Join our remote team</p>
-      <h1 style={{ fontSize: "40px" }}>Internships at Scroller</h1>
+      <h1 style={{ fontSize: "40px", color:"orange" }}>Positions at Scroller</h1>
       <br></br>
-      <div style={{ border: "1px dashed white", padding: "10px" }}>
+      <div style={{ border: "1px solid gainsboro", padding: "10px", color:"black", borderRadius:"10px" }}>
         <h1>Our Mission</h1>
         <br></br>
         <p style={{ fontSize: "18px" }}>
@@ -73,21 +79,22 @@ const CareersPage = () => {
           with learning by combining the dynamic interactivity of social media
           with the power of personalized education. We aim to empower users to
           enhance their knowledge and skills through an innovative platform that
-          delivers AI-generated multiple-choice questions in a seamless,
+          delivers AI-generated multiple-choice questions and "reels" in a seamless,
           scrolling format. We are dedicated to making learning accessible,
-          engaging, and effective for everyone.
+          engaging, and effective for everyone. n
         </p>
       </div>
       <br></br>
       <h1>Perks of Interning at Scroller</h1>
-      <div style={{ display: "flex", flexWrap: "wrap", justifyContent:"center",}}>
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent:"center", color:"black"}}>
         {perks.map((perks, index) => (
           <div
             style={{
-              border: "1px dashed white",
+              border: "1px solid gainsboro",
               padding: "10px",
               width: "29%",
               margin:"10px",
+              borderRadius:"10px"
             }}
           >
             <h2>{perks.header}</h2>
@@ -107,8 +114,8 @@ const CareersPage = () => {
           />
         ))}
       </div>
-      <h1>How Your Applications Will Be Processed</h1>
-      <p>Here at Scroller, we will assess your applications holistically, meaning we look at more than just your resume.</p>
+      <h1>How to Apply?</h1>
+      <p>Send us your CV/resume to scrollercontact@gmail.com and your preferred position(s). We'll set up a meeting with you shortly.</p>
       <br></br>
       <h1>Questions?</h1>
       <p>Don't hesitate to contact us through email: scrollercontact@gmail.com</p>

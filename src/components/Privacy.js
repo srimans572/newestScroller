@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 
-const PrivacyPolicyPopup = ({open}) => {
+const PrivacyPolicyPopup = ({ open, setPrivacyOpen }) => {
   const [isOpen, setIsOpen] = useState(open);
-
-  const openPopup = () => {
-    setIsOpen(true);
-  };
 
   const closePopup = () => {
     setIsOpen(false);
@@ -16,7 +12,12 @@ const PrivacyPolicyPopup = ({open}) => {
       {isOpen && (
         <div style={styles.overlay}>
           <div style={styles.popup}>
-            <button onClick={closePopup} style={styles.closeButton}>
+            <button
+              onClick={async () => {
+                closePopup();
+              }}
+              style={styles.closeButton}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -33,7 +34,9 @@ const PrivacyPolicyPopup = ({open}) => {
               </svg>
             </button>
             <h2>Privacy Policy</h2>
-            <p><strong>Last Updated:</strong> 08/30/2024</p>
+            <p>
+              <strong>Last Updated:</strong> 08/30/2024
+            </p>
 
             <p>
               Welcome to Scroller! We value your privacy and are committed to
@@ -53,8 +56,15 @@ const PrivacyPolicyPopup = ({open}) => {
             <p>
               We use your name and email for the following purposes:
               <ul>
-                <li><strong>Account Creation and Management:</strong> To create and manage your Scroller account.</li>
-                <li><strong>Communication:</strong> To send you updates, newsletters, and other information related to Scroller. You can opt out of these communications at any time.</li>
+                <li>
+                  <strong>Account Creation and Management:</strong> To create
+                  and manage your Scroller account.
+                </li>
+                <li>
+                  <strong>Communication:</strong> To send you updates,
+                  newsletters, and other information related to Scroller. You
+                  can opt out of these communications at any time.
+                </li>
               </ul>
             </p>
 
@@ -67,7 +77,7 @@ const PrivacyPolicyPopup = ({open}) => {
 
             <h3>4. Data Security</h3>
             <p>
-              We implement a variety of security measures to maintain the safety
+              We use third-party database services to handle account information. We also utilize third-party AI services that may use your data to train their model. We implement a variety of security measures to maintain the safety
               of your personal information. However, please note that no method
               of transmission over the internet, or method of electronic
               storage, is 100% secure.
@@ -78,7 +88,9 @@ const PrivacyPolicyPopup = ({open}) => {
               You have the right to:
               <ul>
                 <li>Access and update your personal information.</li>
-                <li>Request the deletion of your account and associated data.</li>
+                <li>
+                  Request the deletion of your account and associated data.
+                </li>
               </ul>
             </p>
 
@@ -92,7 +104,8 @@ const PrivacyPolicyPopup = ({open}) => {
             <h3>7. Contact Us</h3>
             <p>
               If you have any questions or concerns about this Privacy Policy or
-              our data practices, please contact us at <strong>scrollercontact@gmail.com</strong>.
+              our data practices, please contact us at{" "}
+              <strong>scrollercontact@gmail.com</strong>.
             </p>
           </div>
         </div>
@@ -112,7 +125,7 @@ const styles = {
   },
   overlay: {
     position: "fixed",
-    zIndex:"9900",
+    zIndex: "9900",
     top: 0,
     left: 0,
     width: "100%",
@@ -121,7 +134,6 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "left",
-   
   },
   popup: {
     backgroundColor: "white",
@@ -132,10 +144,11 @@ const styles = {
     maxHeight: "80%",
     overflowY: "auto",
     position: "absolute",
-    display:"flex",
-    flexDirection:"column",
-    alignItems:"left",
-    top:"15%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "left",
+    top: "15%",
+    textAlign:"left"
   },
   closeButton: {
     position: "absolute",

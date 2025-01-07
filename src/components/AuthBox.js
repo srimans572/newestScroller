@@ -100,7 +100,6 @@ const AuthBox = () => {
       }
     }
   };
-
   const login = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -148,12 +147,11 @@ const AuthBox = () => {
     <div
       style={{
         backgroundColor: "white",
-        padding: "30px 70px",
+        padding: "30px 30px",
         width: "300px",
         height: "fit-content",
         borderRadius: "10px",
-        boxShadow: "0px 1px 1px 1px gainsboro",
-        marginBottom: "100px",
+        overflow: "scroll",
       }}
     >
       {error && (
@@ -323,11 +321,16 @@ const AuthBox = () => {
               By signing up, you agree to our{" "}
               <span
                 onClick={async () => setPrivacyOpen(true)}
-                style={{ color: "blue" }}
+                style={{ color: "blue", cursor: "pointer" }}
               >
                 privacy policy
               </span>
-              .{privacyOpen && <PrivacyPolicyPopup open={privacyOpen} />}
+              .
+              {privacyOpen && (
+                <PrivacyPolicyPopup
+                  open={privacyOpen}
+                />
+              )}
             </p>
             <button
               style={{
@@ -357,7 +360,7 @@ const AuthBox = () => {
             padding: "10px",
             backgroundColor: "white",
             outline: "1px solid black",
-            border:"none",
+            border: "none",
             color: "black",
             borderRadius: "200px",
             cursor: "pointer",

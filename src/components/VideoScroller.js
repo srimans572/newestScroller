@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
+import randomColor from "randomcolor";
 
 const containerStyle = {
   display: "flex",
@@ -32,37 +33,44 @@ const loadingStyle = {
   fontSize: "24px",
   color: "#888",
 };
-
 const Card = ({
   data,
   color,
   setIsSpeakingGlobal,
   voicesLoaded,
   isSpeakingGlobal,
+  currentSet,
 }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [isZooming, setIsZooming] = useState(false);
-  const cardKey = Object.keys(data)[0]; // Dynamically get the first key (card1, card2, etc.)
+  const [currentWord, setCurrentWord] = useState("");
+  const cardKey = Object.keys(data)[0]; // Dynamically get the first key (e.g., "card1")
   const cardData = data[cardKey]; // Access the array inside that key
 
   useEffect(() => {
     if (!isSpeaking || !voicesLoaded) return;
-
     const synth = window.speechSynthesis;
-    synth.cancel();
+    synth.cancel(); // Cancel any ongoing speech synthesis before starting new
 
     const currentText = cardData[currentTextIndex].text;
+    const words = currentText.split(/(\s+)/); // Split by spaces and include spaces as separate elements
     const utterance = new SpeechSynthesisUtterance(currentText);
+    utterance.onboundary = (event) => {
+      if (event.name === "word") {
+        // Identify the current word using the character index
+        let accumulatedLength = 0;
 
-    // Set a male voice (assuming it's available at index 1, adjust as needed)
-    utterance.voice = window.speechSynthesis.getVoices()[1];
-
-    synth.speak(utterance);
-    setIsZooming(true);
-    setIsSpeakingGlobal(true);
-
+        for (let i = 0; i < words.length; i++) {
+          accumulatedLength += words[i].length;
+          if (event.charIndex < accumulatedLength) {
+            setCurrentWord(words[i].trim()); // Set current word, trimmed of any surrounding spaces
+            break;
+          }
+        }
+      }
+    };
     utterance.onend = () => {
       if (currentTextIndex < cardData.length - 1) {
         setCurrentTextIndex((prevIndex) => prevIndex + 1);
@@ -73,6 +81,10 @@ const Card = ({
         setIsZooming(false);
       }
     };
+
+    synth.speak(utterance);
+    setIsZooming(true);
+    setIsSpeakingGlobal(true);
 
     return () => {
       synth.cancel();
@@ -87,6 +99,27 @@ const Card = ({
       setIsFinished(false);
     }
     setIsSpeaking(true);
+  };
+
+  // Function to get a fallback image or color if image_url is missing or invalid
+  const getBackgroundImage = () => {
+    const currentImage = cardData[currentTextIndex].image_url;
+    if (currentImage!="No media found") {
+      return `url(${currentImage})`;
+    } else {
+      // Fallback: find another valid image or use the set color
+      for (let i = 0; i < cardData.length; i++) {
+        if (cardData[i].image_url && isValidImageUrl(cardData[i].image_url)) {
+          return `url(${cardData[i].image_url})`;
+        }
+      }
+      return color; // Final fallback: use the currentSet color
+    }
+  };
+
+  // Simple function to check if a URL is valid
+  const isValidImageUrl = (url) => {
+    return typeof url === 'string' && url.trim() !== '';
   };
 
   return (
@@ -106,8 +139,8 @@ const Card = ({
       <div
         className={`image-container ${isZooming ? "zoom" : ""}`}
         style={{
-          backgroundImage: `url(${cardData[currentTextIndex].image_url})`,
-          backgroundSize: "contain",
+          backgroundImage: getBackgroundImage(),
+          backgroundSize: "100% 50%",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           height: "100%",
@@ -139,11 +172,11 @@ const Card = ({
               top: 0,
               left: 0,
               right: 0,
-              height: "20%",
-              backgroundImage: `url(${cardData[currentTextIndex].image_url})`,
+              height: "30%",
+              backgroundImage: getBackgroundImage(),
               backgroundSize: "cover",
               backgroundPosition: "top center",
-              filter: "blur(20px)",
+              filter: "blur(10px)",
               transform: "scale(1.1)",
               zIndex: -1,
             }}
@@ -154,11 +187,11 @@ const Card = ({
               bottom: 0,
               left: 0,
               right: 0,
-              height: "20%",
-              backgroundImage: `url(${cardData[currentTextIndex].image_url})`,
+              height: "30%",
+              backgroundImage: getBackgroundImage(),
               backgroundSize: "cover",
               backgroundPosition: "bottom center",
-              filter: "blur(20px)",
+              filter: "blur(10px)",
               transform: "scale(1.1)",
               zIndex: -1,
             }}
@@ -168,9 +201,8 @@ const Card = ({
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "end",
           alignItems: "center",
-          backgroundColor: `${color}20`,
           padding: "10px",
           borderTopLeftRadius: "10px",
           borderTopRightRadius: "10px",
@@ -184,12 +216,13 @@ const Card = ({
           style={{
             fontSize: "24px",
             cursor: "pointer",
-            opacity: isFinished ? 0.5 : 1,
+            opacity: isSpeakingGlobal ? 0.5 : 1,
             pointerEvents: !isSpeakingGlobal && voicesLoaded ? "auto" : "none",
+            color: "gainsboro",
           }}
         />
       </div>
-      <div
+      {currentWord&&<div
         style={{
           display: "flex",
           alignItems: "center",
@@ -210,14 +243,16 @@ const Card = ({
             padding: "5px 10px",
             boxShadow: "0px 0px 10px 1px gainsboro",
             textAlign: "center",
+            fontFamily: "Bangers",
           }}
         >
-          {cardData[currentTextIndex].text}
+          {currentWord}
         </p>
-      </div>
+      </div>}
     </div>
   );
 };
+
 
 const VideoScroller = ({ setStreak, setXP, currentSet }) => {
   const containerRef = useRef(null);
@@ -232,15 +267,17 @@ const VideoScroller = ({ setStreak, setXP, currentSet }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSpeakingGlobal, setIsSpeakingGlobal] = useState(false);
   const [voicesLoaded, setVoicesLoaded] = useState(false);
-  const [isScrolling, setIsScrolling] = useState(false); // New state for scrolling
 
   useEffect(() => {
-    const handleLoadVoices = () => {
-      setVoicesLoaded(true);
+    const loadVoices = () => {
+      if (window.speechSynthesis.getVoices().length > 0) {
+        setVoicesLoaded(true);
+      }
     };
-
-    window.speechSynthesis.onvoiceschanged = handleLoadVoices;
-
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+    loadVoices();
     return () => {
       window.speechSynthesis.onvoiceschanged = null;
     };
@@ -252,7 +289,7 @@ const VideoScroller = ({ setStreak, setXP, currentSet }) => {
       !localStorage.getItem("lastVideoSet") &&
       (currentSet != null || currentSet != undefined)
     ) {
-      fetchCards();
+      fetchVideos();
     }
   }, []);
 
@@ -261,17 +298,18 @@ const VideoScroller = ({ setStreak, setXP, currentSet }) => {
 
     const container = containerRef.current;
     if (!container) return;
-    console.log(currentIndex)
 
     const newIndex = Math.floor(container.scrollTop / container.clientHeight); // Adjust for padding
     setCurrentIndex(newIndex);
-    const threeBeforeEnd = cards.length - 1;
+    console.log(currentIndex);
+
+    const threeBeforeEnd = cards.length - 2;
 
     // Start fetching when three cards away from the end
     if (currentIndex >= threeBeforeEnd && !isFetching) {
       setIsFetching(true);
 
-      fetchCards();
+      fetchVideos();
     }
   };
 
@@ -290,7 +328,7 @@ const VideoScroller = ({ setStreak, setXP, currentSet }) => {
     };
   }, [containerRef]);
 
-  const fetchCards = async () => {
+  const fetchVideos = async () => {
     const options = {
       method: "POST",
       headers: {
@@ -300,12 +338,13 @@ const VideoScroller = ({ setStreak, setXP, currentSet }) => {
       },
       body: JSON.stringify({
         content: currentSet,
+        lastVideoSet: localStorage.getItem("lastVideoSet")
       }),
     };
 
     try {
       const response = await fetch(
-        "http://localhost:9000/generate-content",
+        "https://dlt3816939.execute-api.us-west-2.amazonaws.com/vidGen/",
         options
       );
 
@@ -317,7 +356,7 @@ const VideoScroller = ({ setStreak, setXP, currentSet }) => {
       // Append new cards and update localStorage
 
       setCards((prevCards) => [...prevCards, ...data]);
-      localStorage.setItem("lastVideoSet", JSON.stringify([...cards, ...data]));
+      localStorage.setItem("lastVideoSet", JSON.stringify(data));
 
       setIsFetching(false);
     } catch (error) {
@@ -367,6 +406,7 @@ const VideoScroller = ({ setStreak, setXP, currentSet }) => {
                     setIsSpeakingGlobal={setIsSpeakingGlobal}
                     voicesLoaded={voicesLoaded}
                     isSpeakingGlobal={isSpeakingGlobal}
+                    currentSet={currentSet}
                   />
                 )}
               </div>

@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import QuestionCard from "./QuestionCard";
 import { Link } from "react-router-dom";
 import { jsonrepair } from "jsonrepair";
+import ScrollerLoader from "./mini_components/ScrollerLoader";
 
 const containerStyle = {
   display: "flex",
@@ -82,6 +83,7 @@ const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
 
     const newIndex = Math.floor(container.scrollTop / container.clientHeight); // Adjust for padding
     setCurrentIndex(newIndex);
+    console.log(currentIndex)
     const threeBeforeEnd = questions.length - 3;
 
     // Start fetching when three cards away from the end
@@ -117,7 +119,7 @@ const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
       }
 
       const data = await response.json();
-      const newQuestions = JSON.parse(data);
+      const newQuestions = JSON.parse(jsonrepair(data));
       const modifiedQuestions = newQuestions.map((question) => {
         return {
           ...question, // Keep existing fields
@@ -140,6 +142,7 @@ const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
       setIsFetching(false); // Reset fetching flag
     } catch (e) {
       console.error("Error fetching questions:", e);
+      fetchQuestions();
       setIsFetching(false); // Reset fetching flag in case of error
     }
   };
@@ -186,6 +189,7 @@ const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
                     choices={item.choices}
                     answer={item.answer}
                     selectedAnswer={item.selectedAnswer}
+                    comment={item.comments}
                     setStreak={setStreak}
                     setXP={setXP}
                     title={item.title && item.title}
@@ -198,17 +202,7 @@ const QuestionScroller = ({ setStreak, setXP, currentSet }) => {
           ))}
         </div>
       ) : (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexDirection: "column",
-          }}
-        >
-          <p>Initializing Scroller...</p>
-          <div className="loader"></div>
-        </div>
+        <ScrollerLoader/>
       )}
     </div>
   );

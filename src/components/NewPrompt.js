@@ -8,7 +8,6 @@ import {
   arrayRemove,
 } from "firebase/firestore";
 import Tesseract from "tesseract.js";
-// Set up the PDF worker
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 import PDFJSWorker from "pdfjs-dist/legacy/build/pdf.worker.entry";
 
@@ -19,9 +18,16 @@ var randomColor = require("randomcolor"); // import the script
 
 function NewPrompt({ setOpenNewTopic, style, params }) {
   const [promptMode, setPromptMode] = useState(1);
-  const [subcolor, subcontent, subpromptmode, subsubject, subtag, subtitle, subselectedmode] =
-    params;
-  const [selectedMode, setSelectedMode] = useState(1);
+  const [
+    subcolor,
+    subcontent,
+    subpromptmode,
+    subsubject,
+    subtag,
+    subtitle,
+    subselectedmode,
+  ] = params;
+  const [selectedMode, setSelectedMode] = useState(subselectedmode);
   const [title, setTitle] = useState(style === 1 ? subtitle : "");
   const [content, setContent] = useState(style === 1 ? subcontent : "");
   const [subject, setSubject] = useState(style === 1 ? subsubject : "");
@@ -167,7 +173,7 @@ function NewPrompt({ setOpenNewTopic, style, params }) {
   const saveToFirestore = async () => {
     try {
       const color = randomColor({
-        luminosity: 'dark',
+        luminosity: "dark",
       });
       const userEmail = localStorage.getItem("email");
       const docRef = doc(db, "users", userEmail);
@@ -259,7 +265,10 @@ function NewPrompt({ setOpenNewTopic, style, params }) {
       await updateDoc(docRef, { sets: currentSets });
 
       // Update localStorage
-      if (localStorage.getItem("currentSet")==null||localStorage.getItem("currentSet")==undefined) {
+      if (
+        localStorage.getItem("currentSet") == null ||
+        localStorage.getItem("currentSet") == undefined
+      ) {
         localStorage.setItem(
           "currentSet",
           JSON.stringify({
@@ -267,12 +276,12 @@ function NewPrompt({ setOpenNewTopic, style, params }) {
             content: content,
             subject: subject,
             promptMode: promptMode,
-            color: subcolor,
+            color: color,
             tag: tag,
             scrollGenerationMode: selectedMode,
           })
         );
-      } 
+      }
 
       setOpenNewTopic(false);
     } catch (e) {
@@ -318,12 +327,14 @@ function NewPrompt({ setOpenNewTopic, style, params }) {
     <div
       style={{
         flexDirection: "column",
-        width: "350px",
-        height: "90vh",
+        width: "30px",
+        height: "auto",
+        scale: "0.97",
+        top: "-5px",
         position: "absolute",
-        right: "1%",
-        zIndex: "9999",
-        top: "20px",
+        right: "0px",
+        width: "330px",
+        zIndex: "99999999999999999999",
         background: "white",
         boxShadow: "0px 0px 16px 1px gainsboro",
         borderRadius: "10px",
@@ -476,7 +487,8 @@ function NewPrompt({ setOpenNewTopic, style, params }) {
           <div>
             <p style={{ fontSize: "20px", margin: "0px" }}>Content</p>
             <p style={{ margin: "4px 0px", fontSize: "12px", color: "gray" }}>
-              Copy and paste your notes, lectures or any other textual content.
+              Enter what you want to be tested on (and preferrably give an
+              example or be as specific as possible).
             </p>
             <div
               style={{
@@ -516,37 +528,6 @@ function NewPrompt({ setOpenNewTopic, style, params }) {
               >
                 {subject.length}/6000
               </p>
-              <form
-                style={{ position: "absolute", bottom: "5px", left: "5px" }}
-              >
-                <label
-                  htmlFor="fileUpload"
-                  style={{
-                    background: "white",
-                    display: "inline-block",
-                    padding: "5px 8px", // Reduced padding
-                    borderRadius: "8px", // Reduced border radius
-                    outline: "1px solid gainsboro",
-                    cursor: "pointer",
-                    backgroundColor: "white",
-                    fontSize: "12px", // Reduced font size
-                    color: "black",
-                    textAlign: "center",
-                    boxSizing: "border-box",
-                    boxShadow: "2px 2px 5px gainsboro", // Shadow added here
-                  }}
-                >
-                  Upload Notes
-                  <input
-                    id="fileUpload"
-                    type="file"
-                    name="file"
-                    accept=".pdf, image/*" // Accepts PDF files and all image formats
-                    onChange={handleFile}
-                    style={{ display: "none" }}
-                  />
-                </label>
-              </form>
             </div>
           </div>
         )}

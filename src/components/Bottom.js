@@ -1,9 +1,7 @@
 import React from "react";
 import CustomDropdown from "./Dropdown";
-import Download from "./Download";
 
-
-const Bottom = ({ streak, xp, sets, setCurrentSet, mobileDimension }) => {
+const Bottom = ({ streak, xp, sets, setCurrentSet, mobileDimension, currentSet, location }) => {
   return (
     <div
       style={{
@@ -29,10 +27,10 @@ const Bottom = ({ streak, xp, sets, setCurrentSet, mobileDimension }) => {
         
         }}
       >
-        <p style={{ margin: "0px", padding: "15px 20px", fontSize:mobileDimension&&"10px" }}>
+        <p style={{ margin: "0px", padding: mobileDimension?"15px 10px":"15px 20px", fontSize:mobileDimension&&"10px" }}>
           <span style={{ fontWeight: "bold" }}>Streak 🔥</span>: {streak}
         </p>
-        <p style={{ margin: "0px", padding: "15px 20px", fontSize:mobileDimension&&"10px" }}>
+        <p style={{ margin: "0px",  padding: mobileDimension?"15px 10px":"15px 20px", fontSize:mobileDimension&&"10px" }}>
           <span style={{ fontWeight: "bold" }}>XP 🏆</span>: {xp}
         </p>
       </div>
@@ -53,7 +51,7 @@ const Bottom = ({ streak, xp, sets, setCurrentSet, mobileDimension }) => {
           }}
         >
           <p style={{ marginRight: "10px", fontSize: "10px" }}>Next Set:</p>
-          <CustomDropdown sets={sets} setCurrentSet={setCurrentSet} />
+          <CustomDropdown sets={sets} setCurrentSet={setCurrentSet} mobileDimension={mobileDimension} currentSet={currentSet} location={location}/>
         </div>
       )}
     </div>

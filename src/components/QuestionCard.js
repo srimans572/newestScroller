@@ -5,11 +5,13 @@ import "katex/dist/katex.min.css";
 import correct from "../assets/correct-answer-sound-effect-19.wav";
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore"; // Import necessary Firebase methods
 import { db } from "./firebase/Firebase";
-
+import Comments from "./mini_components/Comments";
+var randomColor = require("randomcolor"); // import the script
 const QuestionCard = ({
   question,
   choices,
   answer,
+  comment,
   setStreak,
   selectedAnswer,
   setXP,
@@ -17,7 +19,7 @@ const QuestionCard = ({
   color,
   fullJSON,
   isFavorites,
-  mobileDimension
+  mobileDimension,
 }) => {
   const cardStyle = {
     cardColor: "whitesmoke",
@@ -28,6 +30,9 @@ const QuestionCard = ({
   const [isAnswered, setIsAnswered] = useState(false);
   const [showPlus10, setShowPlus10] = useState(false);
   const [shake, setShake] = useState(false);
+
+  // New state to handle comment tab visibility
+  const [showComments, setShowComments] = useState(false);
 
   // Retrieve favorites from local storage, or initialize with an empty array
   const [favorites, setFavorites] = useState(
@@ -59,11 +64,10 @@ const QuestionCard = ({
     if (isAnswered) return;
     setSelectedChoice(choice);
     setIsAnswered(true);
-    if (choice === answer) {
+    if (choice === parseInt(answer)) {
       setStreak((prevStreak) => prevStreak + 1);
       setXP((prevXP) => prevXP + 10);
       triggerPlus10Animation();
-      //correctAudio.play();
     } else {
       setStreak(0);
       triggerShakeAnimation();
@@ -105,7 +109,6 @@ const QuestionCard = ({
           cards: arrayRemove(fullJSON),
         });
       } else {
-        console.log(selectedAnswer);
         const newJSON = {
           question,
           choices,
@@ -137,22 +140,24 @@ const QuestionCard = ({
   const isFavorite = favorites.some(
     (fav) => fav.question === fullJSON.question
   );
- 
+
   return (
     <div>
       <div
-      className="card"
+        className="card"
         style={{
-          background: `${color}08`, 
+          background: `${color}08`,
           borderRadius: "10px",
-          boxShadow:`0px 0px 20px 1px ${color}20`,
+          boxShadow: `0px 0px 20px 1px ${color}20`,
           padding: "10px",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
+          justifyContent: "flex-start", // Ensures content stays at the top
           position: "relative",
           animation: shake ? "shake 0.5s ease-out" : "none",
-          border:`1px solid ${color}80`
+          border: `1px solid ${color}80`,
+          transition: "transform 0.3s ease-in-out",
+          minHeight: "300px", // Ensures the card has enough space to work with
         }}
       >
         <div>
@@ -162,11 +167,10 @@ const QuestionCard = ({
               justifyContent: "space-between",
               alignItems: "center",
               backgroundColor: `${color}20`,
-              margin:"-10px",
-              padding:"10px",
-              borderTopLeftRadius:"10px",
-              borderTopRightRadius:"10px"
-
+              margin: "-10px",
+              padding: "10px",
+              borderTopLeftRadius: "10px",
+              borderTopRightRadius: "10px",
             }}
           >
             <p
@@ -182,16 +186,36 @@ const QuestionCard = ({
             >
               {title}
             </p>
-            <i
-              onClick={handleHeartClick}
-              style={{
-                fontSize: "24px",
-                cursor: "pointer",
-               
-              }}
-              className="fa-solid fa-heart"
-              id={isFavorite ? "heart-clicked" : "heart-unclicked"}
-            ></i>
+            <div style={{ display: "flex", gap: "10px" }}>
+              {!isFavorites && (
+                <i
+                  onClick={handleHeartClick}
+                  style={{
+                    fontSize: "24px",
+                    cursor: "pointer",
+                    color: `${color}30`,
+                  }}
+                  className="fa-solid fa-heart"
+                  id={isFavorite ? "heart-clicked" : "heart-unclicked"}
+                ></i>
+              )}
+              <svg
+                onClick={async () => setShowComments(!showComments)}
+                style={{ cursor: "pointer" }}
+                fill={`${color}80`}
+                width="24px"
+                height="24px"
+                viewBox="0 0 24 24"
+                id="Layer_1"
+                data-name="Layer 1"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  class="cls-1"
+                  d="M21.5,12A9.5,9.5,0,1,0,12,21.5h9.5l-2.66-2.92A9.43,9.43,0,0,0,21.5,12Z"
+                />
+              </svg>
+            </div>
           </div>
           <p
             style={{
@@ -203,30 +227,15 @@ const QuestionCard = ({
                   : "14px",
               marginTop: "20px",
               color: cardStyle.textColor,
-              height: "300px",
-              overflow: "scroll",
-              marginBottom: "10px",
+              lineHeight: "1.2",
             }}
           >
             {formatBoldText(question)}
-            {question.length > 500 && (
-              <p
-                style={{
-                  position: "absolute",
-                  top: "-40px",
-                  left: "50%",
-                  background: "white",
-                  padding: "5px 10px",
-                  borderRadius: "100px",
-                  transform: "translate(-50%, 0%)",
-                }}
-              >
-                Scroll for More
-              </p>
-            )}
           </p>
         </div>
-        <div style={{ overflow: "scroll" }}>
+        {showComments&&<Comments comment={comment} randomColor={randomColor} formatBoldText={formatBoldText} />}
+        {/* Choices */}
+        <div style={{ marginTop: "auto" }}>
           {choices.map((choice, index) => (
             <button
               className="cardButton"
@@ -243,21 +252,23 @@ const QuestionCard = ({
                 fontSize: choice.length > 60 && "10px",
                 cursor: isAnswered || isFavorites ? "not-allowed" : "pointer",
                 backgroundColor: !isFavorites
-                  ? selectedChoice === choice
-                    ? selectedChoice === answer
+                  ? selectedChoice === index
+                    ? selectedChoice === parseInt(answer)
                       ? "palegreen"
                       : "salmon"
-                    : isAnswered && choice === answer
+                    : isAnswered && choice === parseInt(answer)
                     ? "palegreen"
                     : cardStyle.buttonColor
-                  : choice == answer
+                  : choice == parseInt(answer)
                   ? "palegreen"
                   : "salmon",
-                opacity: isAnswered && selectedChoice !== choice ? 0.6 : 1,
+                opacity: isAnswered && selectedChoice !== index ? 0.6 : 1,
                 color: cardStyle.textColor,
               }}
               disabled={isFavorites}
-              onClick={() => {handleChoiceClick(choice)}}
+              onClick={() => {
+                handleChoiceClick(index);
+              }}
             >
               <Latex>{choice}</Latex>
             </button>

@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
-import NewPrompt from "./NewPrompt";
 import { getDoc, onSnapshot, doc } from "firebase/firestore";
 import { db } from "./firebase/Firebase";
-import Plans from "./Plans";
 import { useNavigate } from "react-router-dom";
-import { Elements } from "@stripe/react-stripe-js";
 
 const MyProfile = ({ mobileDimension }) => {
   const [name, setName] = useState();
@@ -60,7 +57,7 @@ const MyProfile = ({ mobileDimension }) => {
             fontWeight: "bold",
           }}
         >
-          {name && name.slice(0, 1)}
+          {name ? name.slice(0, 1) : "S"}
         </div>
         <div
           style={{ marginLeft: "10px", flexDirection: "column", width: "60%" }}
@@ -80,7 +77,7 @@ const MyProfile = ({ mobileDimension }) => {
                 borderRadius: "10px",
               }}
             >
-              {name && name}
+              {name ? name : `Scroller` + `${Math.round(Math.random() * 100)}`}
             </p>
           </div>
           <div
@@ -101,25 +98,11 @@ const MyProfile = ({ mobileDimension }) => {
               {email && email}
             </p>
           </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <label style={{}}>Referral Code: </label>
-            <p
-              style={{
-                fontWeight: "bold",
-                padding: "5px",
-                borderRadius: "10px",
-              }}
-            >
-              {referalCode && referalCode}
-            </p>
-          </div>
         </div>
+      </div>
+      <h1 style={{margin:"30px 50px"}}>Achievements</h1>
+      <div style={{ justifyContent:"center", alignItems:"center", width:"75vw", height:"100px", background:"whitesmoke", margin:"0px 50px", borderRadius:"10px", borderStyle:"dashed", display:"flex"}}>
+        <p>Coming Soon!</p>
       </div>
     </div>
   );

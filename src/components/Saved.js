@@ -60,7 +60,7 @@ const SavedQuestions = () => {
                   title={questionData.title && questionData.title}
                   color={questionData.color && questionData.color}
                   fullJSON={questionData}
-                  isFavorites={true}
+                  isFavorites={false}
                 />
               ))
             ) : (

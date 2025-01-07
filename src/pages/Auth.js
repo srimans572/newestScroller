@@ -6,16 +6,18 @@ function Auth() {
       className="App"
       style={{
         display: "flex",
-        alignItems: "center",
         flexDirection: "column",
+        justifyContent:"center",
+        alignItems: "center",
+        height:"100vh",
       }}
     >
       <div
         style={{
           display: "flex",
           flexDirection: "column",
+          justifyContent:"center",
           alignItems: "center",
-          justifyContent: "center",
         }}
       >
         <h1 style={{ margin: "10px 0px", textShadow: "2px 2px 5px orange" }}>
